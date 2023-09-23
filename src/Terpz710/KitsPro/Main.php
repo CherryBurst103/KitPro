@@ -9,7 +9,7 @@ use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\utils\Config; // Correct import
+use pocketmine\utils\Config;
 
 class Main extends PluginBase {
 
@@ -17,16 +17,12 @@ class Main extends PluginBase {
     private $messagesConfig;
 
     public function onEnable() {
-        $this->getLogger()->info("KitsPro has been enabled!");
-
-        // Initialize the configuration files
-        @mkdir($this->getDataFolder()); // Ensure the data folder exists
+        @mkdir($this->getDataFolder());
         $this->kitsConfig = new Config($this->getDataFolder() . "kits.yml", Config::YAML);
         $this->messagesConfig = new Config($this->getDataFolder() . "messages.yml", Config::YAML);
     }
 
     public function onDisable() {
-        // Save the configuration files when the plugin is disabled
         $this->kitsConfig->save();
         $this->messagesConfig->save();
     }
