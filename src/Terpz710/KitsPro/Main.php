@@ -3,27 +3,30 @@
 namespace Terpz710\KitsPro;
 
 use pocketmine\plugin\PluginBase;
-use pocketmine\player\Player;
+use pocketmine\Player;
 use pocketmine\inventory\ChestInventory;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\event\Listener;
+use pocketmine\utils\Config; // Correct import
 
-class Main extends PluginBase implements Listener {
+class Main extends PluginBase {
 
     private $kitsConfig;
     private $messagesConfig;
 
-    public function onEnable(): void {
+    public function onEnable() {
+        $this->getLogger()->info("KitsPro has been enabled!");
+
+        // Initialize the configuration files
+        @mkdir($this->getDataFolder()); // Ensure the data folder exists
         $this->kitsConfig = new Config($this->getDataFolder() . "kits.yml", Config::YAML);
         $this->messagesConfig = new Config($this->getDataFolder() . "messages.yml", Config::YAML);
-
-        $this->getServer()->getPluginManager()->registerEvents($this, $this);
     }
 
-    public function onDisable(): void {
+    public function onDisable() {
+        // Save the configuration files when the plugin is disabled
         $this->kitsConfig->save();
         $this->messagesConfig->save();
     }
@@ -44,7 +47,7 @@ class Main extends PluginBase implements Listener {
 
         $slot = 0;
         foreach ($kits as $kitName => $kitData) {
-            $kitItem = ItemFactory::get(ItemIds::DIAMOND_SWORD);
+            $kitItem = ItemFactory::get(ItemIds::DIAMOND_SWORD); // Customize kit item here
             $kitItem->setCustomName($kitData["name"]);
             $kitItem->setNamedTag(
                 (new CompoundTag())
@@ -61,7 +64,7 @@ class Main extends PluginBase implements Listener {
         $nbt = $item->getNamedTag();
         if ($nbt !== null && $nbt->hasTag("kit", StringTag::class)) {
             $kitName = $nbt->getString("kit");
-            $this->applyKit($player, $kitName);
+            $this->applyKit($player, $kitName)
             $item = ItemFactory::get(ItemIds::STAINED_CLAY, 14);
             $item->setCustomName("Claimed Kit");
             $player->getInventory()->setItem($slot, $item);
