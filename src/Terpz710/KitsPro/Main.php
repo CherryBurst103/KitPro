@@ -4,14 +4,12 @@ namespace Terpz710\KitsPro;
 
 use pocketmine\plugin\PluginBase;
 use pocketmine\player\Player;
-use jojoe77777\FormAPI\CustomForm;
 use pocketmine\item\Item;
-use pocketmine\item\VanillaItems;
-use pocketmine\nbt\tag\StringTag;
-use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\utils\Config;
+use pocketmine\item\enchantment\Enchantment;
 use pocketmine\item\StringToItemParser;
 use pocketmine\item\enchantment\StringToEnchantmentParser;
+use jojoe77777\FormAPI\CustomForm;
+use pocketmine\utils\Config;
 
 class Main extends PluginBase {
 
@@ -33,44 +31,44 @@ class Main extends PluginBase {
     }
 
     public function openKitUI(Player $player) {
-    $kits = $this->kitsConfig->get("kits", []);
-    $kitList = [];
+        $kits = $this->kitsConfig->get("kits", []);
+        $kitList = [];
 
-    foreach ($kits as $kitName => $kitData) {
-        $kitPermission = "kitspro.kit." . strtolower($kitName);
-        $defaultPermission = $kitData["default"];
+        foreach ($kits as $kitName => $kitData) {
+            $kitPermission = "kitspro.kit." . strtolower($kitName);
+            $defaultPermission = $kitData["default"];
 
-        if ($this->hasPermission($player, $kitPermission) || ($defaultPermission === "OP" && $player->isOp()) || ($defaultPermission === "TRUE")) {
-            $kitList[] = $kitData["name"];
+            if ($this->hasPermission($player, $kitPermission) || ($defaultPermission === "OP" && $player->isOp()) || ($defaultPermission === "TRUE")) {
+                $kitList[] = $kitData["name"];
+            }
         }
-    }
 
-    if (empty($kitList)) {
-        $player->sendMessage("You don't have permission to access any kits.");
-        return;
-    }
-
-    $form = new CustomForm(function (Player $player, $data) use ($kits) {
-        if ($data === null) {
+        if (empty($kitList)) {
+            $player->sendMessage("You don't have permission to access any kits.");
             return;
         }
 
-        $kitIndex = $data[0];
-        if (isset($kitList[$kitIndex])) {
-            $kitName = $kitList[$kitIndex];
-            $this->applyKit($player, $kitName);
+        $form = new CustomForm(function (Player $player, $data) use ($kits, $kitList) {
+            if ($data === null) {
+                return;
+            }
 
-            $message = $this->messagesConfig->get("messages.kit_select.kit_claimed", "You have claimed the %kit_name% kit!");
-            $message = str_replace("%kit_name%", $kitName, $message);
-            $player->sendMessage($message);
-        }
-    });
+            $kitIndex = $data[0];
+            if (isset($kitList[$kitIndex])) {
+                $kitName = $kitList[$kitIndex];
+                $this->applyKit($player, $kitName);
 
-    $form->setTitle("Kit Selection");
-    $form->addDropdown("Select a Kit", $kitList);
+                $message = $this->messagesConfig->get("messages.kit_select.kit_claimed", "You have claimed the %kit_name% kit!");
+                $message = str_replace("%kit_name%", $kitName, $message);
+                $player->sendMessage($message);
+            }
+        });
 
-    $player->sendForm($form);
-}
+        $form->setTitle("Kit Selection");
+        $form->addDropdown("Select a Kit", $kitList);
+
+        $player->sendForm($form);
+    }
     
     public function applyKit(Player $player, string $kitName) {
         $kits = $this->kitsConfig->get("kits", []);
@@ -90,18 +88,22 @@ class Main extends PluginBase {
     }
 
     private function parseKitItem($itemData) {
-        $item = Item::get($itemData["id"], $itemData["meta"], $itemData["count"]);
-        $item->setCustomName($itemData["name"]);
+        $itemParser = new StringToItemParser();
+        $parsedItem = $itemParser->parse($itemData["item"]);
 
-        foreach ($itemData["enchantments"] as $enchantment) {
-            $enchant = Enchantment::getEnchantmentByName($enchantment["name"]);
-            if ($enchant !== null) {
-                $enchant->setLevel($enchantment["level"]);
-                $item->addEnchantment($enchant);
+        if (isset($itemData["name"])) {
+            $parsedItem->setCustomName($itemData["name"]);
+        }
+
+        if (isset($itemData["enchantments"])) {
+            foreach ($itemData["enchantments"] as $enchantment) {
+                $enchantmentParser = new StringToEnchantmentParser();
+                $enchantmentInstance = $enchantmentParser->parse($enchantment);
+                $parsedItem->addEnchantment($enchantmentInstance);
             }
         }
 
-        return $item;
+        return $parsedItem;
     }
 
     private function hasPermission(Player $player, $permission) {
