@@ -3,7 +3,7 @@
 namespace Terpz710\KitsPro;
 
 use pocketmine\plugin\PluginBase;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\inventory\ChestInventory;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
