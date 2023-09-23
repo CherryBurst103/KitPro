@@ -1,30 +1,33 @@
 <?php
 
-namespace Terpz710\KitsPro;
+namespace Terpz710\KitsPro\command;
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
+use pocketmine\plugin\Plugin;
+use Terpz710\KitsPro\Main;
 
 class KitCommand extends Command {
 
     private $plugin;
 
     public function __construct(Main $plugin) {
-        parent::__construct("kit", "Access the kit GUI", "/kit");
-        $this->setPermission("kitspro.kit");
+        parent::__construct("kit", "Access kit selection", "/kit <kit_name>");
+        $this->setPermission("kitspro.command.kit");
         $this->plugin = $plugin;
     }
 
-    public function execute(CommandSender $sender, string $commandLabel, array $args): bool {
+    public function execute(CommandSender $sender, string $label, array $args) {
         if ($sender instanceof Player) {
-            if ($this->testPermission($sender)) {
-                $this->plugin->openKitGUI($sender);
+            if (count($args) === 1) {
+                $kitName = strtolower($args[0]);
+                $this->plugin->openKitUI($sender, $kitName);
             } else {
-                $sender->sendMessage("You don't have permission to use this command.");
+                $sender->sendMessage("Usage: /kit <kit_name>");
             }
         } else {
-            $sender->sendMessage("This command can only be used by players.");
+            $sender->sendMessage("This command can only be used in-game.");
         }
         return true;
     }
