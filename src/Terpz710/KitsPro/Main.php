@@ -38,7 +38,7 @@ class Main extends PluginBase {
             $kitPermission = "kitspro.kit." . strtolower($kitName);
             $defaultPermission = $kitData["default"];
 
-            if ($this->hasPermission($player, $kitPermission) || ($defaultPermission === "OP" && $player->isOp()) || ($defaultPermission === "TRUE")) {
+            if ($this->hasPermission($player, $kitPermission) || ($defaultPermission === "OP" && $player->getServer()->getPluginManager()->isOp($player)) || ($defaultPermission === "TRUE")) {
                 $kitList[] = $kitData["name"];
             }
         }
