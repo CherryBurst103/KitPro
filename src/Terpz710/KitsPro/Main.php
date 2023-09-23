@@ -11,7 +11,6 @@ use pocketmine\nbt\tag\StringTag;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\utils\Config;
 use pocketmine\item\StringToItemParser;
-use pocketmine\item\enchantment\EnchantmentInstance;
 use pocketmine\item\enchantment\StringToEnchantmentParser;
 
 class Main extends PluginBase {
