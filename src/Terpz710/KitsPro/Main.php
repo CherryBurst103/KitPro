@@ -48,7 +48,7 @@ class Main extends PluginBase {
             return;
         }
 
-        $form = new CustomForm(function (Player $player, $data) use ($kits, $kitList) {
+        $form = new CustomForm(function (Player $player, $data) use ($kitList) {
             if ($data === null) {
                 return;
             }
