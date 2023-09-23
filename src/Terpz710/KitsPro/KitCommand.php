@@ -1,18 +1,14 @@
-<?php
-
 namespace Terpz710\KitsPro;
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
-use pocketmine\plugin\Plugin;
-use Terpz710\KitsPro\Main;
 
 class KitCommand extends Command {
 
     private $plugin;
 
-    public function __construct(Main $plugin) {
+    public function __construct(KitsPro $plugin) {
         parent::__construct("kit", "Access kit selection", "/kit <kit_name>");
         $this->setPermission("kitspro.command.kit");
         $this->plugin = $plugin;
