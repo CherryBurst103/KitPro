@@ -16,18 +16,12 @@ use pocketmine\item\enchantment\StringToEnchantmentParser;
 class Main extends PluginBase {
 
     public function onEnable(): void {
-        @mkdir($this->getDataFolder());
         $this->saveResource("kits.yml");
         $this->saveResource("messages.yml");
     }
 
-    public function onDisable(): void {
-        $this->kitsConfig->save();
-        $this->messagesConfig->save();
-    }
-
     public function openKitUI(Player $player) {
-        $kits = $this->kitsConfig->get("kits", []);
+        $kits = $this->kits->get("kits", []);
         $kitList = [];
 
         foreach ($kits as $kitName => $kitData) {
@@ -50,7 +44,7 @@ class Main extends PluginBase {
             $kitName = $kitList[$data];
             $this->applyKit($player, $kitName);
 
-            $message = $this->messagesConfig->get("messages.kit_select.kit_claimed", "You have claimed the %kit_name% kit!");
+            $message = $this->messages->get("messages.kit_select.kit_claimed", "You have claimed the %kit_name% kit!");
             $message = str_replace("%kit_name%", $kitName, $message);
             $player->sendMessage($message);
         });
@@ -72,14 +66,14 @@ class Main extends PluginBase {
                 $player->getInventory()->addItem($item);
             }
 
-            $message = $this->messagesConfig->get("messages.kit_select.kit_claimed", "You have claimed the %kit_name% kit!");
+            $message = $this->messages->get("messages.kit_select.kit_claimed", "You have claimed the %kit_name% kit!");
             $message = str_replace("%kit_name%", $kitData["name"], $message);
             $player->sendMessage($message);
         }
     }
 
     public function closeKitUI(Player $player) {
-        $message = $this->messagesConfig->get("messages.kit_select.ui_closed", "You have closed the Kit Selection UI.");
+        $message = $this->messages->get("messages.kit_select.ui_closed", "You have closed the Kit Selection UI.");
         $player->sendMessage($message);
     }
 
@@ -107,7 +101,7 @@ class Main extends PluginBase {
     }
 
     public function generateKitPermissions() {
-        $kits = $this->kitsConfig->get("kits", []);
+        $kits = $this->kits->get("kits", []);
 
         foreach ($kits as $kitName => $kitData) {
             $permissionNode = "kitspro.kit." . strtolower($kitName);
@@ -115,7 +109,6 @@ class Main extends PluginBase {
             $kits[$kitName] = $kitData;
         }
 
-        $this->kitsConfig->set("kits", $kits);
-        $this->kitsConfig->save();
+        $this->kits->set("kits", $kits);
     }
 }
