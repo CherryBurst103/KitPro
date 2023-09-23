@@ -14,7 +14,7 @@ class KitCommand extends Command {
 
     public function __construct(Main $plugin) {
         parent::__construct("kit", "Access kit selection", "/kit <kit_name>");
-        $this->setPermission("kitspro.command.kit");
+        $this->setPermission("kitspro.kit");
         $this->plugin = $plugin;
     }
 
