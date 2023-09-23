@@ -91,7 +91,8 @@ class Main extends PluginBase {
     }
 
     private function parseKitItem($itemData) {
-        $parsedItem = StringToItemParser::parse($itemData["item"]);
+        $itemParser = new StringToItemParser();
+        $parsedItem = $itemParser->parse($itemData["item"]);
 
         if (isset($itemData["name"])) {
             $parsedItem->setCustomName($itemData["name"]);
@@ -99,7 +100,8 @@ class Main extends PluginBase {
 
         if (isset($itemData["enchantments"])) {
             foreach ($itemData["enchantments"] as $enchantment) {
-                $enchantmentInstance = StringToEnchantmentParser::parse($enchantment);
+                $enchantmentParser = new StringToEnchantmentParser();
+                $enchantmentInstance = $enchantmentParser->parse($enchantment);
                 $parsedItem->addEnchantment($enchantmentInstance);
             }
         }
