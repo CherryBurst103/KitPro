@@ -2,9 +2,9 @@
 
 namespace Terpz710\KitsPro;
 
-use pocket\command\Command;
-use pocket\command\CommandSender;
-use pocket\player\Player;
+use pocketmine\command\Command;
+use pocketmine\command\CommandSender;
+use pocketmine\player\Player;
 
 class KitCommand extends Command {
 
