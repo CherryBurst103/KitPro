@@ -56,7 +56,7 @@ class Main extends PluginBase {
     }
 
     public function applyKit(Player $player, string $kitName) {
-        $kits = $this->kitsConfig->get("kits", []);
+        $kits = $this->kits->get("kits", []);
 
         if (isset($kits[$kitName])) {
             $kitData = $kits[$kitName];
