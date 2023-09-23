@@ -24,6 +24,7 @@ class Main extends PluginBase {
         $this->kitsConfig = new Config($this->getDataFolder() . "kits.yml", Config::YAML);
         $this->messagesConfig = new Config($this->getDataFolder() . "messages.yml", Config::YAML);
         $this->getServer()->getCommandMap()->register("kit", new KitCommand($this));
+        $this->generateKitPermissions();
     }
 
     public function onDisable(): void {
@@ -37,7 +38,7 @@ class Main extends PluginBase {
 
         foreach ($kits as $kitName => $kitData) {
             $kitPermission = "kitspro.kit." . strtolower($kitName);
-            if ($this->hasPermission($player, $kitPermission)) {
+            if ($this->hasPermission($player, $kitPermission) || $player->isOp()) {
                 $kitList[] = $kitData["name"];
             }
         }
@@ -52,12 +53,15 @@ class Main extends PluginBase {
                 return;
             }
 
-            $kitName = $kitList[$data];
-            $this->applyKit($player, $kitName);
+            $kitIndex = $data[0];
+            if (isset($kitList[$kitIndex])) {
+                $kitName = $kitList[$kitIndex];
+                $this->applyKit($player, $kitName);
 
-            $message = $this->messagesConfig->get("messages.kit_select.kit_claimed", "You have claimed the %kit_name% kit!");
-            $message = str_replace("%kit_name%", $kitName, $message);
-            $player->sendMessage($message);
+                $message = $this->messagesConfig->get("messages.kit_select.kit_claimed", "You have claimed the %kit_name% kit!");
+                $message = str_replace("%kit_name%", $kitName, $message);
+                $player->sendMessage($message);
+            }
         });
 
         $form->setTitle("Kit Selection");
@@ -83,35 +87,26 @@ class Main extends PluginBase {
         }
     }
 
-    public function closeKitUI(Player $player) {
-        $message = $this->messagesConfig->get("messages.kit_select.ui_closed", "You have closed the Kit Selection UI.");
-        $player->sendMessage($message);
+    private function parseKitItem($itemData) {
+        $item = Item::get($itemData["id"], $itemData["meta"], $itemData["count"]);
+        $item->setCustomName($itemData["name"]);
+
+        foreach ($itemData["enchantments"] as $enchantment) {
+            $enchant = Enchantment::getEnchantmentByName($enchantment["name"]);
+            if ($enchant !== null) {
+                $enchant->setLevel($enchantment["level"]);
+                $item->addEnchantment($enchant);
+            }
+        }
+
+        return $item;
     }
 
     private function hasPermission(Player $player, $permission) {
         return $player->hasPermission($permission);
     }
 
-    private function parseKitItem($itemData) {
-        $itemParser = new StringToItemParser();
-        $parsedItem = $itemParser->parse($itemData["item"]);
-
-        if (isset($itemData["name"])) {
-            $parsedItem->setCustomName($itemData["name"]);
-        }
-
-        if (isset($itemData["enchantments"])) {
-            foreach ($itemData["enchantments"] as $enchantment) {
-                $enchantmentParser = new StringToEnchantmentParser();
-                $enchantmentInstance = $enchantmentParser->parse($enchantment);
-                $parsedItem->addEnchantment($enchantmentInstance);
-            }
-        }
-
-        return $parsedItem;
-    }
-
-    public function generateKitPermissions() {
+    private function generateKitPermissions() {
         $kits = $this->kitsConfig->get("kits", []);
 
         foreach ($kits as $kitName => $kitData) {
