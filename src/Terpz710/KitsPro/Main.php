@@ -4,10 +4,9 @@ namespace Terpz710\KitsPro;
 
 use pocketmine\plugin\PluginBase;
 use pocketmine\player\Player;
-use pocketmine\inventory\ChestInventory;
+use jojoe77777\FormAPI\CustomForm;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
-use pocketmine\item\ItemIds;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\utils\Config;
@@ -28,44 +27,39 @@ class Main extends PluginBase {
         $this->messagesConfig->save();
     }
 
-    public function openKitGUI(Player $player) {
-        $kitChest = $this->createKitChest($player);
-        $kitChest->setListener([$this, "onKitSelection"]);
-
-        $player->addWindow($kitChest);
-    }
-
-    public function createKitChest(Player $player): ChestInventory {
-        $kitChest = new ChestInventory();
-        $kitChest->setSize(27);
-        $kitChest->setName("Kit Selection");
-
+    public function openKitUI(Player $player) {
         $kits = $this->kitsConfig->get("kits", []);
+        $kitList = [];
 
-        $slot = 0;
         foreach ($kits as $kitName => $kitData) {
-            $kitItem = ItemFactory::get(ItemIds::DIAMOND_SWORD);
-            $kitItem->setCustomName($kitData["name"]);
-            $kitItem->setNamedTag(
-                (new CompoundTag())
-                    ->setString("kit", $kitName)
-            );
-            $kitChest->setItem($slot, $kitItem);
-            $slot++;
+            $kitPermission = "kitspro.kit." . strtolower($kitName);
+            if ($this->hasPermission($player, $kitPermission)) {
+                $kitList[] = $kitData["name"];
+            }
         }
 
-        return $kitChest;
-    }
+        if (empty($kitList)) {
+            $player->sendMessage("You don't have permission to access any kits.");
+            return;
+        }
 
-    public function onKitSelection(Player $player, int $slot, Item $item) {
-        $nbt = $item->getNamedTag();
-        if ($nbt !== null && $nbt->hasTag("kit", StringTag::class)) {
-            $kitName = $nbt->getString("kit");
+        $form = new CustomForm(function (Player $player, $data) use ($kitList) {
+            if ($data === null) {
+                return;
+            }
+
+            $kitName = $kitList[$data];
             $this->applyKit($player, $kitName);
-            $item = ItemFactory::get(ItemIds::STAINED_CLAY, 14);
-            $item->setCustomName("Claimed Kit");
-            $player->getInventory()->setItem($slot, $item);
-        }
+
+            $message = $this->messagesConfig->get("messages.kit_select.kit_claimed", "You have claimed the %kit_name% kit!");
+            $message = str_replace("%kit_name%", $kitName, $message);
+            $player->sendMessage($message);
+        });
+
+        $form->setTitle("Kit Selection");
+        $form->addDropdown("Select a Kit", $kitList);
+
+        $player->sendForm($form);
     }
 
     public function applyKit(Player $player, string $kitName) {
@@ -73,18 +67,54 @@ class Main extends PluginBase {
 
         if (isset($kits[$kitName])) {
             $kitData = $kits[$kitName];
+
             foreach ($kitData["items"] as $itemData) {
-                $item = ItemFactory::fromString($itemData);
+                $item = $this->parseKitItem($itemData);
                 $player->getInventory()->addItem($item);
             }
 
             $message = $this->messagesConfig->get("messages.kit_select.kit_claimed", "You have claimed the %kit_name% kit!");
             $message = str_replace("%kit_name%", $kitData["name"], $message);
             $player->sendMessage($message);
-        } else {
-            $message = $this->messagesConfig->get("messages.kit_select.kit_unknown", "Unknown kit: %kit_name%");
-            $message = str_replace("%kit_name%", $kitName, $message);
-            $player->sendMessage($message);
         }
+    }
+
+    public function closeKitUI(Player $player) {
+        $message = $this->messagesConfig->get("messages.kit_select.ui_closed", "You have closed the Kit Selection UI.");
+        $player->sendMessage($message);
+    }
+
+    private function hasPermission(Player $player, $permission) {
+        return $player->hasPermission($permission);
+    }
+
+    private function parseKitItem($itemData) {
+        $item = ItemFactory::fromString($itemData["item"]);
+
+        if (isset($itemData["name"])) {
+            $item->setCustomName($itemData["name"]);
+        }
+
+        if (isset($itemData["enchantments"])) {
+            foreach ($itemData["enchantments"] as $enchantment) {
+                [$enchantmentName, $enchantmentLevel] = explode(":", $enchantment);
+                $item->addEnchantment(Enchantment::getEnchantmentByName($enchantmentName)->setLevel($enchantmentLevel));
+            }
+        }
+
+        return $item;
+    }
+
+    public function generateKitPermissions() {
+        $kits = $this->kitsConfig->get("kits", []);
+
+        foreach ($kits as $kitName => $kitData) {
+            $permissionNode = "kitspro.kit." . strtolower($kitName);
+            $kitData["permission"] = $permissionNode;
+            $kits[$kitName] = $kitData;
+        }
+
+        $this->kitsConfig->set("kits", $kits);
+        $this->kitsConfig->save();
     }
 }
