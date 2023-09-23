@@ -3,112 +3,82 @@
 namespace Terpz710\KitsPro;
 
 use pocketmine\plugin\PluginBase;
-use pocketmine\player\Player;
-use jojoe77777\FormAPI\CustomForm;
-use pocketmine\item\Item;
-use pocketmine\item\VanillaItems;
-use pocketmine\nbt\tag\StringTag;
-use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\event\Listener;
+use pocketmine\Player;
+use pocketmine\command\Command;
+use pocketmine\command\CommandSender;
+use jojoe77777\FormAPI\FormAPI;
+use jojoe77777\FormAPI\SimpleForm;
 use pocketmine\utils\Config;
-use pocketmine\item\StringToItemParser;
-use pocketmine\item\enchantment\StringToEnchantmentParser;
 
-class Main extends PluginBase {
+class KitsPro extends PluginBase implements Listener {
 
-    public function onEnable(): void {
-        $this->saveResource("kits.yml");
-        $this->saveResource("messages.yml");
-    }
+    /** @var FormAPI|null */
+    private $formAPI;
 
-    public function openKitUI(Player $player) {
-        $kits = $this->kits->get("kits", []);
-        $kitList = [];
+    /** @var Config */
+    private $kitsConfig;
 
-        foreach ($kits as $kitName => $kitData) {
-            $kitPermission = "kitspro.kit." . strtolower($kitName);
-            if ($this->hasPermission($player, $kitPermission)) {
-                $kitList[] = $kitData["name"];
-            }
-        }
+    public function onEnable() {
+        $this->getServer()->getPluginManager()->registerEvents($this, $this);
+        $this->getLogger()->info("KitsPro has been enabled");
 
-        if (empty($kitList)) {
-            $player->sendMessage("You don't have permission to access any kits.");
+        $this->formAPI = $this->getServer()->getPluginManager()->getPlugin("FormAPI");
+        if ($this->formAPI === null) {
+            $this->getLogger()->error("FormAPI is required for KitsPro.");
+            $this->getServer()->getPluginManager()->disablePlugin($this);
             return;
         }
 
-        $form = new CustomForm(function (Player $player, $data) use ($kitList) {
+        $this->kitsConfig = new Config($this->getDataFolder() . "kits.yml", Config::YAML);
+        $this->saveResource("kits.yml", false);
+    }
+
+    public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool {
+        if ($command->getName() === "kit" && $sender instanceof Player) {
+            $this->openKitUI($sender);
+            return true;
+        }
+        return false;
+    }
+
+    public function openKitUI(Player $player) {
+        $form = new SimpleForm(function (Player $player, $data) {
             if ($data === null) {
                 return;
             }
 
-            $kitName = $kitList[$data];
-            $this->applyKit($player, $kitName);
-
-            $message = $this->messages->get("messages.kit_select.kit_claimed", "You have claimed the %kit_name% kit!");
-            $message = str_replace("%kit_name%", $kitName, $message);
-            $player->sendMessage($message);
+            $kitIndex = $data + 1;
+            $kitName = "kit$kitIndex";
+            $kitData = $this->kitsConfig->get("kits.$kitName");
+            if ($kitData !== null) {
+                $kitName = $kitData["name"];
+                $kitItems = $kitData["items"];
+                $this->sendConfirmationUI($player, $kitName);
+            }
         });
 
-        $form->setTitle("Kit Selection");
-        $form->addDropdown("Select a Kit", $kitList);
+        $form->setTitle("KitsPro Kit Selection");
+        $form->setContent("Select a kit:");
+        foreach ($this->kitsConfig->getAll()["kits"] as $kitName => $kitData) {
+            $form->addButton($kitData["name"]);
 
         $player->sendForm($form);
     }
 
-    public function applyKit(Player $player, string $kitName) {
-        $kits = $this->kits->get("kits", []);
-
-        if (isset($kits[$kitName])) {
-            $kitData = $kits[$kitName];
-
-            foreach ($kitData["items"] as $itemData) {
-                $item = $this->parseKitItem($itemData);
-                $player->getInventory()->addItem($item);
+    public function sendConfirmationUI(Player $player, $kitName) {
+        $form = new SimpleForm(function (Player $player, $data) use ($kitName) {
+            if ($data === 0) {
+                $player->sendMessage("You have confirmed Kit $kitName");
             }
+        });
 
-            $message = $this->messages->get("messages.kit_select.kit_claimed", "You have claimed the %kit_name% kit!");
-            $message = str_replace("%kit_name%", $kitData["name"], $message);
-            $player->sendMessage($message);
-        }
-    }
+        $form->setTitle("KitsPro Kit Confirmation");
+        $form->setContent("You've selected $kitName. Confirm?");
 
-    public function closeKitUI(Player $player) {
-        $message = $this->messages->get("messages.kit_select.ui_closed", "You have closed the Kit Selection UI.");
-        $player->sendMessage($message);
-    }
+        $form->addButton("Confirm");
+        $form->addButton("Cancel");
 
-    private function hasPermission(Player $player, $permission) {
-        return $player->hasPermission($permission);
-    }
-
-    private function parseKitItem($itemData) {
-        $itemParser = new StringToItemParser();
-        $parsedItem = $itemParser->parse($itemData["item"]);
-
-        if (isset($itemData["name"])) {
-            $parsedItem->setCustomName($itemData["name"]);
-        }
-
-        if (isset($itemData["enchantments"])) {
-            foreach ($itemData["enchantments"] as $enchantment) {
-                $enchantmentParser = new StringToEnchantmentParser();
-                $enchantmentInstance = $enchantmentParser->parse($enchantment);
-                $parsedItem->addEnchantment($enchantmentInstance);
-            }
-        }
-
-        return $parsedItem;
-    }
-
-    public function generateKitPermissions() {
-        $kits = $this->kits->get("kits", []);
-
-        foreach ($kits as $kitName => $kitData) {
-            $permissionNode = "kitspro.kit." . strtolower($kitName);
-            $kitData["permission"] = $permissionNode;
-            $kits[$kitName] = $kitData;
-        }
-
-        $this->kits->set("kits", $kits);
+        $player->sendForm($form);
     }
 }
