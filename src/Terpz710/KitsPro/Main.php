@@ -21,8 +21,7 @@ class KitsPro extends PluginBase implements Listener {
 
     public function onEnable() {
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
-        $this->getLogger()->info("KitsPro has been enabled");
-
+        $this->getServer()->getCommandMap()->register("kit", $kitCommand);
         $this->formAPI = $this->getServer()->getPluginManager()->getPlugin("FormAPI");
         if ($this->formAPI === null) {
             $this->getLogger()->error("FormAPI is required for KitsPro.");
