@@ -20,18 +20,21 @@ class KitsPro extends PluginBase implements Listener {
     private $kitsConfig;
 
     public function onEnable() {
-        $this->getServer()->getPluginManager()->registerEvents($this, $this);
-        $this->getServer()->getCommandMap()->register("kit", $kitCommand);
-        $this->formAPI = $this->getServer()->getPluginManager()->getPlugin("FormAPI");
-        if ($this->formAPI === null) {
-            $this->getLogger()->error("FormAPI is required for KitsPro.");
-            $this->getServer()->getPluginManager()->disablePlugin($this);
-            return;
-        }
+    $this->getServer()->getPluginManager()->registerEvents($this, $this);
 
-        $this->kitsConfig = new Config($this->getDataFolder() . "kits.yml", Config::YAML);
-        $this->saveResource("kits.yml", false);
+    $kitCommand = new KitCommand($this);
+    $this->getServer()->getCommandMap()->register("kit", $kitCommand);
+
+    $this->formAPI = $this->getServer()->getPluginManager()->getPlugin("FormAPI");
+    if ($this->formAPI === null) {
+        $this->getLogger()->error("FormAPI is required for KitsPro.");
+        $this->getServer()->getPluginManager()->disablePlugin($this);
+        return;
     }
+
+    $this->kitsConfig = new Config($this->getDataFolder() . "kits.yml", Config::YAML);
+    $this->saveResource("kits.yml", false);
+}
 
     public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool {
         if ($command->getName() === "kit" && $sender instanceof Player) {
