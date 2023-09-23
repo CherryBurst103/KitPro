@@ -20,8 +20,8 @@ class Main extends PluginBase {
 
     public function onEnable(): void {
         @mkdir($this->getDataFolder());
-        $this->kitsConfig = Config($this->getDataFolder() . "kits.yml", Config::YAML);
-        $this->messagesConfig = Config($this->getDataFolder() . "messages.yml", Config::YAML);
+        $this->saveResource("kits.yml");
+        $this->saveResource("messages.yml");
     }
 
     public function onDisable(): void {
