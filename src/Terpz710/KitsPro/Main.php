@@ -19,7 +19,8 @@ class Main extends PluginBase {
     private $messagesConfig;
 
     public function onEnable(): void {
-        @mkdir($this->getDataFolder());
+        $this->saveResource("kits.yml");
+        $this->saveResource("messages.yml");
         $this->kitsConfig = new Config($this->getDataFolder() . "kits.yml", Config::YAML);
         $this->messagesConfig = new Config($this->getDataFolder() . "messages.yml", Config::YAML);
         $this->getServer()->getCommandMap()->register("kit", new KitCommand($this));
