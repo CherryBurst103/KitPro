@@ -16,7 +16,7 @@ class Main extends PluginBase implements Listener {
     private $kitsConfig;
     private $messagesConfig;
 
-    public function onEnable() {
+    public function onEnable(): void {
         $this->kitsConfig = new Config($this->getDataFolder() . "kits.yml", Config::YAML);
         $this->messagesConfig = new Config($this->getDataFolder() . "messages.yml", Config::YAML);
 
