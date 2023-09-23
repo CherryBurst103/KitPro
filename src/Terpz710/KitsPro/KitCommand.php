@@ -1,6 +1,6 @@
 <?php
 
-namespace Terpz710\KitsPro\command;
+namespace Terpz710\KitsPro;
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
