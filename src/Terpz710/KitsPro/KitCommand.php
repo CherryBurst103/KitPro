@@ -1,3 +1,5 @@
+<?php
+
 namespace Terpz710\KitsPro;
 
 use pocketmine\command\Command;
