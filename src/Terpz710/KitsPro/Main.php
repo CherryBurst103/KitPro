@@ -3,8 +3,9 @@
 namespace Terpz710\KitsPro;
 
 use pocketmine\plugin\PluginBase;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\inventory\ChestInventory;
+use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
 use pocketmine\nbt\tag\StringTag;
@@ -43,7 +44,7 @@ class Main extends PluginBase {
 
         $slot = 0;
         foreach ($kits as $kitName => $kitData) {
-            $kitItem = ItemFactory::get(ItemIds::DIAMOND_SWORD); // Customize kit item here
+            $kitItem = ItemFactory::get(ItemIds::DIAMOND_SWORD);
             $kitItem->setCustomName($kitData["name"]);
             $kitItem->setNamedTag(
                 (new CompoundTag())
@@ -60,7 +61,7 @@ class Main extends PluginBase {
         $nbt = $item->getNamedTag();
         if ($nbt !== null && $nbt->hasTag("kit", StringTag::class)) {
             $kitName = $nbt->getString("kit");
-            $this->applyKit($player, $kitName)
+            $this->applyKit($player, $kitName);
             $item = ItemFactory::get(ItemIds::STAINED_CLAY, 14);
             $item->setCustomName("Claimed Kit");
             $player->getInventory()->setItem($slot, $item);
@@ -72,7 +73,6 @@ class Main extends PluginBase {
 
         if (isset($kits[$kitName])) {
             $kitData = $kits[$kitName];
-
             foreach ($kitData["items"] as $itemData) {
                 $item = ItemFactory::fromString($itemData);
                 $player->getInventory()->addItem($item);
