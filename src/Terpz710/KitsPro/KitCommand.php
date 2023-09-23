@@ -19,16 +19,16 @@ class KitCommand extends Command {
     }
 
     public function execute(CommandSender $sender, string $label, array $args) {
-        if ($sender instanceof Player) {
-            if (count($args) === 1) {
-                $kitName = strtolower($args[0]);
-                $this->plugin->openKitUI($sender, $kitName);
-            } else {
-                $sender->sendMessage("Usage: /kit <kit_name>");
-            }
+    if ($sender instanceof Player) {
+        if (count($args) === 1) {
+            $kitName = strtolower($args[0]);
+            $this->plugin->openKitUI($sender, $kitName);
         } else {
-            $sender->sendMessage("This command can only be used in-game.");
+            $sender->sendMessage("Usage: /kit <kit_name>");
         }
-        return true;
+    } else {
+        $sender->sendMessage("This command can only be used in-game.");
+    }
+    return true;
     }
 }
