@@ -6,10 +6,11 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\player\Player;
 use jojoe77777\FormAPI\CustomForm;
 use pocketmine\item\Item;
-use pocketmine\item\ItemFactory;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\utils\Config;
+use pocketmine\item\StringToItemParser;
+use pocketmine\item\VanillaItems;
 
 class Main extends PluginBase {
 
@@ -89,20 +90,21 @@ class Main extends PluginBase {
     }
 
     private function parseKitItem($itemData) {
-        $item = ItemFactory::fromString($itemData["item"]);
+        $parsedItem = StringToItemParser::parse($itemData["item"]);
 
         if (isset($itemData["name"])) {
-            $item->setCustomName($itemData["name"]);
+            $parsedItem->setCustomName($itemData["name"]);
         }
 
         if (isset($itemData["enchantments"])) {
             foreach ($itemData["enchantments"] as $enchantment) {
                 [$enchantmentName, $enchantmentLevel] = explode(":", $enchantment);
-                $item->addEnchantment(Enchantment::getEnchantmentByName($enchantmentName)->setLevel($enchantmentLevel));
+                $enchantmentInstance = VanillaItems::getEnchantmentByName($enchantmentName)->setLevel((int)$enchantmentLevel);
+                $parsedItem->addEnchantment($enchantmentInstance);
             }
         }
 
-        return $item;
+        return $parsedItem;
     }
 
     public function generateKitPermissions() {
