@@ -15,9 +15,13 @@ use pocketmine\item\enchantment\StringToEnchantmentParser;
 
 class Main extends PluginBase {
 
+    private $kitsConfig;
+    private $messagesConfig;
+
     public function onEnable(): void {
-        $kits = Config($this->getDataFolder() . "kits.yml", Config::YAML);
-        $messages = Config($this->getDataFolder() . "messages.yml", Config::YAML);
+        @mkdir($this->getDataFolder());
+        $this->kitsConfig = Config($this->getDataFolder() . "kits.yml", Config::YAML);
+        $this->messagesConfig = Config($this->getDataFolder() . "messages.yml", Config::YAML);
     }
 
     public function onDisable(): void {
