@@ -79,5 +79,6 @@ class KitsPro extends PluginBase implements Listener {
         $form->addButton("Cancel");
 
         $player->sendForm($form);
+        }
     }
 }
