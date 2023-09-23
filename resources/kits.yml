@@ -1,0 +1,15 @@
+kits:
+  kit1:
+    name: "Kit 1"
+    items:
+      - "276:0:1" # Diamond Sword
+      - "311:0:1" # Diamond Chestplate
+      - "312:0:1" # Diamond Leggings
+      - "313:0:1" # Diamond Boots
+  kit2:
+    name: "Kit 2"
+    items:
+      - "267:0:1" # Iron Sword
+      - "307:0:1" # Iron Chestplate
+      - "308:0:1" # Iron Leggings
+      - "309:0:1" # Iron Boots

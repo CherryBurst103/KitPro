@@ -1,0 +1,4 @@
+messages:
+  kit_select:
+    kit_claimed: "You have claimed the %kit_name% kit!"
+    kit_unknown: "Unknown kit: %kit_name%"
