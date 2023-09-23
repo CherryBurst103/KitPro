@@ -6,11 +6,13 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\player\Player;
 use jojoe77777\FormAPI\CustomForm;
 use pocketmine\item\Item;
+use pocketmine\item\VanillaItems;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\utils\Config;
 use pocketmine\item\StringToItemParser;
-use pocketmine\item\VanillaItems;
+use pocketmine\item\enchantment\EnchantmentInstance;
+use pocketmine\item\enchantment\StringToEnchantmentParser;
 
 class Main extends PluginBase {
 
@@ -98,8 +100,7 @@ class Main extends PluginBase {
 
         if (isset($itemData["enchantments"])) {
             foreach ($itemData["enchantments"] as $enchantment) {
-                [$enchantmentName, $enchantmentLevel] = explode(":", $enchantment);
-                $enchantmentInstance = VanillaItems::getEnchantmentByName($enchantmentName)->setLevel((int)$enchantmentLevel);
+                $enchantmentInstance = StringToEnchantmentParser::parse($enchantment);
                 $parsedItem->addEnchantment($enchantmentInstance);
             }
         }
