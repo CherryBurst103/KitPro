@@ -16,13 +16,13 @@ class Main extends PluginBase {
     private $kitsConfig;
     private $messagesConfig;
 
-    public function onEnable() {
+    public function onEnable(): void {
         @mkdir($this->getDataFolder());
         $this->kitsConfig = new Config($this->getDataFolder() . "kits.yml", Config::YAML);
         $this->messagesConfig = new Config($this->getDataFolder() . "messages.yml", Config::YAML);
     }
 
-    public function onDisable() {
+    public function onDisable(): void {
         $this->kitsConfig->save();
         $this->messagesConfig->save();
     }
