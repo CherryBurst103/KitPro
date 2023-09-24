@@ -8,7 +8,7 @@ use Terpz710\ProKits\ChestKits;
 use Vecnavium\FormsUI\SimpleForm;
 use pocketmine\player\Player;
 
-class CKitsForm {
+class KitForm {
     
     private Player $player;
     
