@@ -1,0 +1,9 @@
+name: KitsPro
+version: 1.0.0
+api: 5.0.0
+main: Terpz710\KitsPro\Main
+description: A better kit plugin for Pocketmine-MP
+permissions:
+  kitspro.kits:
+    description: Allow player to access kits ui
+    default: true
