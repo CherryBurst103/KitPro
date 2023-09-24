@@ -1,8 +1,0 @@
-messages:
-  kit_select:
-    kit_claimed: "You have claimed the %kit_name% kit!"
-    ui_closed: "You have closed the Kit Selection UI."
-  kit_not_found: "Kit not found."
-  no_permission: "You do not have permission to access this kit."
-  command_usage: "Usage: /kit <kit_name>"
-  in_game_only: "This command can only be used in-game."
