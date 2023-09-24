@@ -12,7 +12,7 @@ use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginOwned;
 
-class CKitsCommand extends Command implements PluginOwned{
+class KitCommand extends Command implements PluginOwned{
     
     private ChestKits $chestkits;
 
