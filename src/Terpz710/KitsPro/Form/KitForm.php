@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Terpz710\ProKits\Form;
 
-use Terpz710\ProKits\ChestKits;
+use Terpz710\ProKits\Main;
 use Vecnavium\FormsUI\SimpleForm;
 use pocketmine\player\Player;
 
