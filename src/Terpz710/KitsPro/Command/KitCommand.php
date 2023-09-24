@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Terpz710\ProKits\Command;
 
-use DavidGlitch04\KitsPro\Main
+use Terpz710\KitsPro\Main;
 use Terpz710\KitsPro\Form\KitForm;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
